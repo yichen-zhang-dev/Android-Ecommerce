@@ -2,16 +2,23 @@ package com.example.ecommerce;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
-import android.graphics.Movie;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -22,6 +29,7 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
 
@@ -29,6 +37,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Document;
+import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.net.URI;
@@ -46,6 +55,8 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
+import com.example.ecommerce.Movie;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "Firebase Tutorial";
@@ -60,6 +71,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String GET_MOST_POPULAR_MOVIES = "https://imdb8.p.rapidapi.com/title/get-most-popular-movies?";
     private static final String GET_MOVIE_DETAILS = "https://imdb8.p.rapidapi.com/title/get-details?tconst=";
+
+    private FirestoreRecyclerAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +91,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        configureAdapter();
+
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.main_recycler_view);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(adapter);
+
         // Start Cart activity
         final ImageButton cart_button = (ImageButton) findViewById(R.id.cart_button);
         cart_button.setOnClickListener(new View.OnClickListener() {
@@ -86,6 +106,44 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        adapter.startListening();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        adapter.stopListening();
+    }
+
+
+    private void configureAdapter() {
+        Query query = db.collection("movies").whereGreaterThan("year", 2000);
+        // Configure RecylcerView adapter
+        FirestoreRecyclerOptions<Movie> options = new FirestoreRecyclerOptions.Builder<Movie>()
+                .setQuery(query, Movie.class)
+                .build();
+
+        adapter = new FirestoreRecyclerAdapter<Movie, MovieHolder>(options) {
+            @Override
+            public MovieHolder onCreateViewHolder(ViewGroup group, int i) {
+                View view = LayoutInflater.from(group.getContext())
+                        .inflate(R.layout.movie_item, group, false);
+                return new MovieHolder(view);
+            }
+
+            @Override
+            public void onBindViewHolder(MovieHolder movieHolder, int position, Movie movie) {
+                movieHolder.getTitleView().setText(movie.getTitle());
+                movieHolder.getYearView().setText("\t(" + movie.getYear() + ")");
+//                int imageID =
+//                movieHolder.getImageView().set;
+            }
+        };
     }
 
     private void IMDbAPI() {
@@ -274,4 +332,26 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 }
+
+class MovieHolder extends RecyclerView.ViewHolder {
+
+    private final TextView titleView;
+    private final TextView yearView;
+//    private final ImageView imageView;
+
+    public MovieHolder(View view) {
+        super(view);
+        titleView = (TextView) view.findViewById(R.id.movie_title);
+        yearView = (TextView) view.findViewById(R.id.movie_year);
+//        imageView = (ImageView) view.findViewById(R.id.movie_image);
+    }
+
+    public TextView getTitleView() { return titleView; }
+
+    public TextView getYearView() { return yearView; }
+
+//    public ImageView getImageView() { return imageView; }
+}
+
+
 

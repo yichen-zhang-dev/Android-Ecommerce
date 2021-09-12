@@ -19,22 +19,11 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="SpeakableTextPresentCheck" />
 
-    <androidx.constraintlayout.utils.widget.ImageFilterView
-        android:id="@+id/image"
-        android:layout_width="250dp"
-        android:layout_height="250dp"
-        android:layout_centerInParent="true"
-        app:srcCompat="@color/purple_700" />
-
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="260dp"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/image"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="16dp"
-        android:text="Amazon.com"
-        android:textColor="#008000"
-        android:textSize="40sp" />
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/main_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/cart_button"
+        android:layout_marginTop="1dp" />
 
 </RelativeLayout>

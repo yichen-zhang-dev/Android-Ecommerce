@@ -56,6 +56,7 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 import com.example.ecommerce.Movie;
+import com.squareup.picasso.Picasso;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -140,8 +141,7 @@ public class MainActivity extends AppCompatActivity {
             public void onBindViewHolder(MovieHolder movieHolder, int position, Movie movie) {
                 movieHolder.getTitleView().setText(movie.getTitle());
                 movieHolder.getYearView().setText("\t(" + movie.getYear() + ")");
-//                int imageID =
-//                movieHolder.getImageView().set;
+                Picasso.get().load(movie.getImageURL()).into(movieHolder.getImageView());
             }
         };
     }
@@ -337,20 +337,20 @@ class MovieHolder extends RecyclerView.ViewHolder {
 
     private final TextView titleView;
     private final TextView yearView;
-//    private final ImageView imageView;
+    private final ImageView imageView;
 
     public MovieHolder(View view) {
         super(view);
         titleView = (TextView) view.findViewById(R.id.movie_title);
         yearView = (TextView) view.findViewById(R.id.movie_year);
-//        imageView = (ImageView) view.findViewById(R.id.movie_image);
+        imageView = (ImageView) view.findViewById(R.id.movie_image);
     }
 
     public TextView getTitleView() { return titleView; }
 
     public TextView getYearView() { return yearView; }
 
-//    public ImageView getImageView() { return imageView; }
+    public ImageView getImageView() { return imageView; }
 }
 
 

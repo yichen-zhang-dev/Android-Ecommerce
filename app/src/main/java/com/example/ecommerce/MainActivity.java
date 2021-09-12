@@ -68,12 +68,13 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d(ECOMMERCE_TAG, "======================Firing up Firebase======================");
         db = FirebaseFirestore.getInstance();
+//        firebaseExample();
 //        populateCities();
 //        IMDbAPI();
         db.collection("movies").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                Log.d(MOVIE_TAG, "number of movies in Firebase: " + task.getResult().size());
+                Log.d(MOVIE_TAG, "Number of movies in Firebase: " + task.getResult().size());
             }
         });
 
@@ -89,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void IMDbAPI() {
         OkHttpClient client = new OkHttpClient();
-        // Get a tconsts of 100 most popular movies
+        // Get tconsts of the 100 most popular movies
         Request request = new Request.Builder()
                 .url(GET_MOST_POPULAR_MOVIES + "homeCountry=US&purchaseCountry=US&currentCountry=US")
                 .get()
@@ -158,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
                                             }
                                             movieRecord.put("imageURL", image.get("url"));
                                             String title = (String) detail.get("title");
-//                                    Log.d(MOVIE_TAG, movieRecord.toString());
+
                                             DocumentReference movieReference = db.collection("movies").document((String) detail.get("title"));
                                             movieReference.set(movieRecord)
                                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -175,11 +176,11 @@ public class MainActivity extends AppCompatActivity {
                                                     });
                                         } catch (Exception e) {
                                             Log.w(MOVIE_TAG, "There is no field: image.");
+                                        } finally {
+                                            response.close();
                                         }
                                     } catch (JSONException e) {
                                         Log.d(MOVIE_TAG, "SOMETHING IS WRONG!");
-//                                        e.printStackTrace();
-//                                        response.close();
                                     } finally {
                                         response.close();
                                     }
@@ -189,36 +190,11 @@ public class MainActivity extends AppCompatActivity {
                         });
                     }
                 }
+
             }
         });
+        Log.d(TAG, "======================Completed populating movies======================");
     }
-
-//    private void firebase() {
-//        // Create a new user with a first and last name
-//        Map<String, Object> user = new HashMap<>();
-//        user.put("first", "Yichen");
-//        user.put("last", "Zhang");
-//        user.put("born", 1999);
-//
-//        DocumentReference userYichen = db.collection("users").document("Yichen");
-//
-//        // Add a new document with a generated ID
-////        db.collection("users")
-////                .add(user)
-//        userYichen.set(user)
-//                .addOnSuccessListener(new OnSuccessListener<Void>() {
-//                    @Override
-//                    public void onSuccess(Void unused) {
-//                        Log.d(TAG, "DocumentSnapshot successfully written!");
-//                    }
-//                })
-//                .addOnFailureListener(new OnFailureListener() {
-//                    @Override
-//                    public void onFailure(@NonNull Exception e) {
-//                        Log.w(TAG, "Error adding document", e);
-//                    }
-//                });
-//    }
 
     private void populateCities() {
         CollectionReference cities = db.collection("cities");
@@ -270,11 +246,32 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d(TAG, "======================Completed populating cities======================");
     }
-}
 
-class MovieID {
-    public String tconst;
-    public MovieID(String tconst) {
-        this.tconst = tconst;
+    private void firebaseExample() {
+        // Create a new user with a first and last name
+        Map<String, Object> user = new HashMap<>();
+        user.put("first", "Yichen");
+        user.put("last", "Zhang");
+        user.put("born", 1999);
+
+        DocumentReference userYichen = db.collection("users").document("Yichen");
+
+        // Add a new document with a generated ID
+//        db.collection("users")
+//                .add(user)
+        userYichen.set(user)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        Log.d(TAG, "DocumentSnapshot successfully written!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error adding document", e);
+                    }
+                });
     }
 }
+

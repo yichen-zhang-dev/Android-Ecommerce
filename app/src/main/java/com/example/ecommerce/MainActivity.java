@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Movie;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -22,19 +23,43 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.gson.Gson;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Document;
 
+import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "Firebase Tutorial";
     private static final String ECOMMERCE_TAG = "Ecommerce";
+    private static final String MOVIE_TAG = "IMDb Movies";
     private static FirebaseFirestore db;
+
+    private static final String HOST_KEY = "x-rapidapi-host";
+    private static final String HOST = "imdb8.p.rapidapi.com";
+    private static final String API_KEY = "x-rapidapi-key";
+    private static final String API_TOKEN = "caad3fa983msh669d994564f9bf7p1eacf8jsn22fa56a73701";
+
+    private static final String GET_MOST_POPULAR_MOVIES = "https://imdb8.p.rapidapi.com/title/get-most-popular-movies?";
+    private static final String GET_MOVIE_DETAILS = "https://imdb8.p.rapidapi.com/title/get-details?tconst=";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +68,14 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d(ECOMMERCE_TAG, "======================Firing up Firebase======================");
         db = FirebaseFirestore.getInstance();
-        populateCities();
+//        populateCities();
+//        IMDbAPI();
+        db.collection("movies").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                Log.d(MOVIE_TAG, "number of movies in Firebase: " + task.getResult().size());
+            }
+        });
 
         // Start Cart activity
         final ImageButton cart_button = (ImageButton) findViewById(R.id.cart_button);
@@ -51,6 +83,112 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, Cart.class);
                 startActivity(intent);
+            }
+        });
+    }
+
+    private void IMDbAPI() {
+        OkHttpClient client = new OkHttpClient();
+        // Get a tconsts of 100 most popular movies
+        Request request = new Request.Builder()
+                .url(GET_MOST_POPULAR_MOVIES + "homeCountry=US&purchaseCountry=US&currentCountry=US")
+                .get()
+                .addHeader(HOST_KEY, HOST)
+                .addHeader(API_KEY, API_TOKEN)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    ArrayList<String> movieTCONSTS = new ArrayList<>();
+                    String popularMovieTCONSTs = response.body().string();
+
+                    Pattern tconstPattern = Pattern.compile("/title/tt[0-9]{7}");
+                    Matcher tconstMatcher = tconstPattern.matcher(popularMovieTCONSTs);
+                    while (tconstMatcher.find())  {
+                        movieTCONSTS.add(tconstMatcher.group(0));
+                    }
+                    assert(movieTCONSTS.size() == 100);
+                    response.close();
+
+                    for (int i = 0; i < movieTCONSTS.size(); i++) {
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        Log.d(MOVIE_TAG, "LOOP: \t\t\t\t" + i + "\t\t" + movieTCONSTS.get(i));
+                        // Get details of a single movie
+                        Request movieDetailsRequest = new Request.Builder()
+                                .url(GET_MOVIE_DETAILS + movieTCONSTS.get(i).substring(7))
+                                .get()
+                                .addHeader(HOST_KEY, HOST)
+                                .addHeader(API_KEY, API_TOKEN)
+                                .build();
+
+                        OkHttpClient client = new OkHttpClient();
+                        client.newCall(movieDetailsRequest).enqueue(new Callback() {
+                            @Override
+                            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                                // e.printStackTrace();
+                                Log.w(MOVIE_TAG, "\t\t\tGet details error!");
+                            }
+
+                            @Override
+                            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                                if (response.isSuccessful()) {
+                                    String movieDetails = response.body().string();
+//                                Log.d(MOVIE_TAG, movieDetails);
+                                    try {
+                                        JSONObject detail = new JSONObject(movieDetails);
+                                        Log.d(MOVIE_TAG, "\t\t" + detail.get("title"));
+                                        JSONObject image = null;
+                                        try {
+                                            image = new JSONObject(detail.get("image").toString());
+                                            Map<String, Object> movieRecord = new HashMap<>();
+                                            String[] keys = new String[] {"id", "title", "titleType", "year"};
+                                            for (String key : keys) {
+                                                movieRecord.put(key, detail.get(key));
+                                            }
+                                            movieRecord.put("imageURL", image.get("url"));
+                                            String title = (String) detail.get("title");
+//                                    Log.d(MOVIE_TAG, movieRecord.toString());
+                                            DocumentReference movieReference = db.collection("movies").document((String) detail.get("title"));
+                                            movieReference.set(movieRecord)
+                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                        @Override
+                                                        public void onSuccess(Void unused) {
+                                                            Log.d(MOVIE_TAG, "DocumentSnapshot successfully written: " + title);
+                                                        }
+                                                    })
+                                                    .addOnFailureListener(new OnFailureListener() {
+                                                        @Override
+                                                        public void onFailure(@NonNull Exception e) {
+                                                            Log.w(MOVIE_TAG, "Error adding movie", e);
+                                                        }
+                                                    });
+                                        } catch (Exception e) {
+                                            Log.w(MOVIE_TAG, "There is no field: image.");
+                                        }
+                                    } catch (JSONException e) {
+                                        Log.d(MOVIE_TAG, "SOMETHING IS WRONG!");
+//                                        e.printStackTrace();
+//                                        response.close();
+                                    } finally {
+                                        response.close();
+                                    }
+
+                                }
+                            }
+                        });
+                    }
+                }
             }
         });
     }
@@ -131,5 +269,12 @@ public class MainActivity extends AppCompatActivity {
         cities.document("BJ").set(data5);
 
         Log.d(TAG, "======================Completed populating cities======================");
+    }
+}
+
+class MovieID {
+    public String tconst;
+    public MovieID(String tconst) {
+        this.tconst = tconst;
     }
 }

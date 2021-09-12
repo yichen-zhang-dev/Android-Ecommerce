@@ -11,36 +11,23 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QuerySnapshot;
-import com.google.gson.Gson;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Document;
-import org.w3c.dom.Text;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -53,9 +40,7 @@ import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
 
-import com.example.ecommerce.Movie;
 import com.squareup.picasso.Picasso;
 
 public class MainActivity extends AppCompatActivity {
@@ -75,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
 
     private FirestoreRecyclerAdapter adapter;
 
+    private ImageButton cart_button;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,12 +72,12 @@ public class MainActivity extends AppCompatActivity {
 //        firebaseExample();
 //        populateCities();
 //        IMDbAPI();
-        db.collection("movies").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                Log.d(MOVIE_TAG, "Number of movies in Firebase: " + task.getResult().size());
-            }
-        });
+//        db.collection("movies").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+//            @Override
+//            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+//                Log.d(MOVIE_TAG, "Number of movies in Firebase: " + task.getResult().size());
+//            }
+//        });
 
         configureAdapter();
 
@@ -99,11 +86,11 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
 
-        // Start Cart activity
-        final ImageButton cart_button = (ImageButton) findViewById(R.id.cart_button);
+        // Start Favorite_Movies activity
+        cart_button = (ImageButton) findViewById(R.id.cart_button);
         cart_button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, Cart.class);
+                Intent intent = new Intent(MainActivity.this, Favorite_Movies.class);
                 startActivity(intent);
             }
         });
@@ -123,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void configureAdapter() {
-        Query query = db.collection("movies").whereGreaterThan("year", 2000);
+        Query query = db.collection("movies").orderBy("title");
         // Configure RecylcerView adapter
         FirestoreRecyclerOptions<Movie> options = new FirestoreRecyclerOptions.Builder<Movie>()
                 .setQuery(query, Movie.class)
@@ -338,12 +325,68 @@ class MovieHolder extends RecyclerView.ViewHolder {
     private final TextView titleView;
     private final TextView yearView;
     private final ImageView imageView;
+    private final ImageButton removeButton;
+    private final ImageButton addButton;
+    private static FirebaseFirestore db;
+
+    private final String REMOVE_TAG = "Remove a movie";
+    private final String ADD_TAG = "Add a movie";
 
     public MovieHolder(View view) {
         super(view);
-        titleView = (TextView) view.findViewById(R.id.movie_title);
-        yearView = (TextView) view.findViewById(R.id.movie_year);
+
+        db = FirebaseFirestore.getInstance();
+
+        titleView = (TextView) view.findViewById(R.id.fav_movie_title);
+        yearView = (TextView) view.findViewById(R.id.fav_movie_year);
         imageView = (ImageView) view.findViewById(R.id.movie_image);
+        removeButton = (ImageButton) view.findViewById(R.id.remove_movie_button);
+        addButton = (ImageButton) view.findViewById(R.id.add_movie_button);
+
+        removeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                db.collection("favorite_movies").document((String) titleView.getText())
+                        .delete()
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+                                Log.d(REMOVE_TAG, "Successful!");
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w(REMOVE_TAG, "Error deleting a movie! ", e);
+                            }
+                        });
+            }
+        });
+
+        addButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Map<String, Object> movie = new HashMap<>();
+                movie.put("title", titleView.getText());
+                String year = (String) yearView.getText();
+                movie.put("year", year.substring(2, year.length() - 1));
+
+                db.collection("favorite_movies").document((String) titleView.getText())
+                        .set(movie)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+                                Log.d(ADD_TAG, "Successful!");
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w(REMOVE_TAG, "Error adding a movie! ", e);
+                            }
+                        });
+            }
+        });
     }
 
     public TextView getTitleView() { return titleView; }
@@ -351,6 +394,10 @@ class MovieHolder extends RecyclerView.ViewHolder {
     public TextView getYearView() { return yearView; }
 
     public ImageView getImageView() { return imageView; }
+
+    public ImageButton getRemoveButton() { return removeButton; }
+
+    public ImageButton getAddButton() { return addButton; }
 }
 
 

@@ -4,14 +4,19 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.17083333333333334" />
+        <entry key="app/src/main/res/drawable/ic_baseline_add_circle_24.xml" value="0.21640625" />
         <entry key="app/src/main/res/drawable/ic_baseline_keyboard_arrow_down_24.xml" value="0.17083333333333334" />
+        <entry key="app/src/main/res/drawable/ic_baseline_local_movies_24.xml" value="0.221875" />
+        <entry key="app/src/main/res/drawable/ic_baseline_remove_circle_24.xml" value="0.21640625" />
         <entry key="app/src/main/res/drawable/ic_baseline_shopping_cart_24.xml" value="0.223828125" />
         <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.17083333333333334" />
         <entry key="app/src/main/res/layout/activity_cart.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/activity_favorite_movies.xml" value="0.19375" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.25" />
         <entry key="app/src/main/res/layout/activity_movie_item.xml" value="0.158984375" />
+        <entry key="app/src/main/res/layout/favorite_movie_image.xml" value="0.22" />
         <entry key="app/src/main/res/layout/list_shopping_view.xml" value="0.21171875" />
-        <entry key="app/src/main/res/layout/movie_item.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/movie_item.xml" value="0.25" />
       </map>
     </option>
   </component>

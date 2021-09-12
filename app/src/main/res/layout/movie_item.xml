@@ -6,26 +6,51 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/movie_title"
+        android:id="@+id/fav_movie_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/movie_title"
         android:textSize="24sp" />
 
     <TextView
-        android:id="@+id/movie_year"
+        android:id="@+id/fav_movie_year"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toEndOf="@+id/movie_title"
+        android:layout_toEndOf="@+id/fav_movie_title"
         android:text="@string/movie_year"
         android:textSize="24sp" />
 
     <ImageView
         android:id="@+id/movie_image"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/movie_year"
+        android:layout_width="379dp"
+        android:layout_height="610dp"
+        android:layout_below="@+id/fav_movie_year"
+        android:layout_centerInParent="true"
         android:layout_marginTop="0dp"
+        android:layout_marginBottom="32dp"
         android:contentDescription="@string/movie_image"
         tools:srcCompat="@tools:sample/avatars" />
+
+    <ImageButton
+        android:id="@+id/remove_movie_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/movie_image"
+        android:layout_alignStart="@+id/movie_image"
+        android:layout_marginStart="90dp"
+        android:layout_marginTop="-19dp"
+        android:minHeight="48dp"
+        app:srcCompat="@drawable/ic_baseline_remove_circle_24"
+        tools:ignore="SpeakableTextPresentCheck" />
+
+    <ImageButton
+        android:id="@+id/add_movie_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/movie_image"
+        android:layout_marginStart="96dp"
+        android:layout_marginTop="-19dp"
+        android:layout_toEndOf="@+id/remove_movie_button"
+        app:srcCompat="@drawable/ic_baseline_add_circle_24"
+        tools:ignore="SpeakableTextPresentCheck" />
 </RelativeLayout>

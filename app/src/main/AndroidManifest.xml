@@ -12,9 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Ecommerce">
         <activity
-            android:name=".Cart"
-            android:exported="true"
-            android:parentActivityName=".MainActivity" />
+            android:name=".Favorite_Movies"
+            android:parentActivityName=".MainActivity"
+            android:exported="true" />
         <activity
             android:name=".MainActivity"
             android:exported="true">

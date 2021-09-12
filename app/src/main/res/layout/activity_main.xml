@@ -10,11 +10,11 @@
     <ImageButton
         android:id="@+id/cart_button"
         android:layout_width="32dp"
-        android:layout_height="32dp"
+        android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:accessibilityLiveRegion="polite"
         android:background="@color/white"
-        android:src="@drawable/ic_baseline_shopping_cart_24"
+        android:src="@drawable/ic_baseline_local_movies_24"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="SpeakableTextPresentCheck" />
@@ -24,6 +24,17 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/cart_button"
-        android:layout_marginTop="1dp" />
+        android:layout_marginTop="32dp" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="378dp"
+        android:layout_height="40dp"
+        android:layout_above="@+id/main_recycler_view"
+        android:layout_marginBottom="0dp"
+        android:layout_toStartOf="@+id/cart_button"
+        android:text="Most Popular Movies"
+        android:textColor="#000080"
+        android:textSize="24sp" />
 
 </RelativeLayout>

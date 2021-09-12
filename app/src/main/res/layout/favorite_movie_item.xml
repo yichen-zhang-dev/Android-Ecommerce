@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/fav_movie_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@id/remove_fav_button"
+        android:text="title"
+        android:textSize="24sp" />
+
+    <TextView
+        android:id="@+id/fav_movie_year"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@id/remove_fav_button"
+        android:layout_toEndOf="@+id/fav_movie_title"
+        android:text="(year)"
+        android:textSize="24sp" />
+
+    <ImageButton
+        android:id="@+id/remove_fav_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="2dp"
+        android:layout_toEndOf="@+id/fav_movie_year"
+        app:srcCompat="@drawable/ic_baseline_remove_circle_24"
+        tools:ignore="SpeakableTextPresentCheck" />
+
+</RelativeLayout>

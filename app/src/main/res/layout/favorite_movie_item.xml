@@ -10,6 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@id/remove_fav_button"
+        android:layout_marginLeft="8dp"
         android:text="title"
         android:textSize="24sp" />
 
@@ -24,10 +25,9 @@
 
     <ImageButton
         android:id="@+id/remove_fav_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="2dp"
-        android:layout_toEndOf="@+id/fav_movie_year"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_alignParentRight="true"
         app:srcCompat="@drawable/ic_baseline_remove_circle_24"
         tools:ignore="SpeakableTextPresentCheck" />
 

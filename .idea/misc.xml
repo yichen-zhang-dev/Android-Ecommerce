@@ -15,6 +15,7 @@
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.25" />
         <entry key="app/src/main/res/layout/activity_movie_item.xml" value="0.158984375" />
         <entry key="app/src/main/res/layout/favorite_movie_image.xml" value="0.22" />
+        <entry key="app/src/main/res/layout/favorite_movie_item.xml" value="0.33" />
         <entry key="app/src/main/res/layout/list_shopping_view.xml" value="0.21171875" />
         <entry key="app/src/main/res/layout/movie_item.xml" value="0.25" />
       </map>
